@@ -1,0 +1,128 @@
+name: Verify example dataset
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  configuration:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install example and development tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Check Ruff formatting
+        run: python -m ruff format --check tests
+
+      - name: Run Ruff
+        run: python -m ruff check tests
+
+      - name: Run mypy
+        run: python -m mypy tests
+
+      - name: Validate workspace configuration
+        run: python -m pytest -q
+
+  pipeline-integration:
+    needs: configuration
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: metrka
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d metrka"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      PGPASSWORD: postgres
+      METRKA_ENV: development
+      METRKA_MIGRATION_DSN: >-
+        dbname=metrka
+        host=127.0.0.1
+        port=5432
+        user=metrka_migrator
+        password=metrka_migrator_local
+      METRKA_METADATA_DSN: >-
+        dbname=metrka
+        host=127.0.0.1
+        port=5432
+        user=metrka_etl
+        password=metrka_etl_local
+      METRKA_WORKSPACES_CONFIG_PATH: ${{ github.workspace }}/workspaces.example.yaml
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install released metrka-core
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Provision local database roles
+        run: |
+          psql \
+            --host 127.0.0.1 \
+            --port 5432 \
+            --username postgres \
+            --dbname metrka \
+            --file docker/postgres-init/001_roles.sql
+
+      - name: Apply metadata migrations
+        run: |
+          python -m metrka_core.metadata.migrations upgrade head
+          python -m metrka_core.metadata.migrations check
+
+      - name: Run the complete example pipeline
+        run: metrka run gapminder
+
+      - name: Verify Silver evidence
+        run: |
+          find datasets/gapminder/data/files/silver/tables \
+            -type f -name '*.parquet' -print -quit | grep -q .
+          test "$(psql \
+            --host 127.0.0.1 \
+            --port 5432 \
+            --username postgres \
+            --dbname metrka \
+            --tuples-only \
+            --no-align \
+            --command "SELECT count(*) FROM logs.silver_build_attempts WHERE status = 'succeeded';")" \
+            -ge 1

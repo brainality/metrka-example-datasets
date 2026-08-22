@@ -1,0 +1,5 @@
+schema_version: 1
+workspaces:
+  gapminder:
+    placement: portable
+    workspace_root: datasets/gapminder

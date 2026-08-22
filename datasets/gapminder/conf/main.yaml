@@ -1,0 +1,68 @@
+workspace_name: gapminder
+
+source:
+  name: Gapminder teaching dataset
+  system: jennybc/gapminder
+  url: https://github.com/jennybc/gapminder
+  update_frequency: static snapshot
+
+streams:
+  development:
+    display_name: Country development indicators
+    description: >-
+      Five-year observations of life expectancy, population, and GDP per
+      capita for 142 countries from 1952 through 2007.
+    official_filename: gapminder.tsv
+    download_url: https://raw.githubusercontent.com/jennybc/gapminder/391b5a40d3574c3b89d889dd7d72f7f3fdb4a70c/inst/extdata/gapminder.tsv
+    yaml_contract_name: gapminder.yaml
+
+    silver:
+      partition_by: version_period
+      version_period:
+        strategy: max_column
+        column: year
+        format: "%Y"
+        grain: year
+      input:
+        format: tsv
+      outputs:
+        - parquet
+        - csv
+
+    catalog:
+      highlights:
+        - key: countries_covered
+          label: Countries covered
+          calculation: distinct_count
+          table: gapminder
+          column: country_name
+
+        - key: continents_covered
+          label: Continents covered
+          calculation: distinct_count
+          table: gapminder
+          column: continent_name
+
+        - key: years_covered
+          label: Years covered
+          calculation: range
+          table: gapminder
+          column: observation_year
+
+pipeline:
+  quality:
+    config: quality.yaml
+
+  acquisition:
+    extractor: http.files
+    options:
+      timeout_seconds: 120
+      min_bytes: 1
+      user_agent: metrka-example-datasets/1.0.0
+    backfill:
+      source_url: manual_upload
+      match_mode: exact
+
+  steps:
+    - action: bronze.ingest
+    - action: silver.process

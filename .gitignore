@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+build/
+dist/
+
+# Test and type-check caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+
+# Local configuration and secrets
+.env
+.env.*
+workspaces.local.yaml
+# Temporary locks created next to workspace placement registries.
+*.yaml.lock
+*.yml.lock
+*.local.yaml
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

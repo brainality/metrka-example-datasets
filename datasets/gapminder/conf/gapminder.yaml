@@ -1,0 +1,83 @@
+meta:
+  version: 1.0
+  info: >-
+    An educational country-year table containing life expectancy,
+    population, and GDP per capita observations every five years from 1952
+    through 2007. The dataset is intended to demonstrate a complete Metrka
+    pipeline, not to provide current development indicators.
+  category: health-medicine
+  tags:
+    - demography
+    - population
+    - life expectancy
+    - gross domestic product
+    - countries
+    - education
+  source:
+    name: gapminder R teaching package
+    publisher: Jennifer Bryan and contributors
+    url: https://github.com/jennybc/gapminder
+  methodology:
+    definitions:
+      life_expectancy_years: Life expectancy at birth, measured in years.
+      population: Estimated country population for the observation year.
+      gdp_per_capita_usd: GDP per capita in inflation-adjusted US dollars.
+    limitations:
+      - The teaching dataset ends in 2007 and must not be presented as current.
+      - The table is an educational excerpt rather than the complete Gapminder database.
+
+tables:
+  gapminder:
+    display_name: Country development indicators
+    info: >-
+      Country-level observations of life expectancy, population, and GDP per
+      capita at five-year intervals.
+    source:
+      download_url: https://raw.githubusercontent.com/jennybc/gapminder/391b5a40d3574c3b89d889dd7d72f7f3fdb4a70c/inst/extdata/gapminder.tsv
+      file_name: gapminder.tsv
+      encoding: utf-8
+
+    columns:
+      country:
+        rename_to: country_name
+        cast_to: string
+        meta:
+          description: Country or territory name used in the teaching dataset.
+
+      continent:
+        rename_to: continent_name
+        cast_to: string
+        meta:
+          description: Continent assigned to the country in the teaching dataset.
+
+      year:
+        rename_to: observation_year
+        cast_to: int
+        meta:
+          description: Calendar year represented by the observation.
+
+      lifeExp:
+        rename_to: life_expectancy_years
+        cast_to: float
+        meta:
+          description: Life expectancy at birth, measured in years.
+
+      pop:
+        rename_to: population
+        cast_to: int
+        meta:
+          description: Estimated population for the country and year.
+
+      gdpPercap:
+        rename_to: gdp_per_capita_usd
+        cast_to: float
+        meta:
+          description: Inflation-adjusted GDP per capita in US dollars.
+
+    canonical_order:
+      - country_name
+      - continent_name
+      - observation_year
+      - life_expectancy_years
+      - population
+      - gdp_per_capita_usd

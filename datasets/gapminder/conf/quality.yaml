@@ -1,0 +1,58 @@
+version: 1
+
+gates:
+  pre_bronze:
+    - id: gapminder.source.file_size_min
+      type: file_size_min
+      name: Downloaded source is not empty
+      severity: blocking
+      params:
+        min_bytes: 1
+
+    - id: gapminder.source.sha256_recorded
+      type: sha256_recorded
+      name: Downloaded source has a recorded checksum
+      severity: blocking
+
+  post_bronze:
+    - id: gapminder.bronze.output_files_created
+      type: output_files_created
+      name: Bronze preserved the source file
+      severity: blocking
+      params:
+        min_files: 1
+        min_file_bytes: 1
+
+  pre_silver:
+    - id: gapminder.silver.input.has_data_rows
+      type: has_data_rows
+      name: Source table contains rows
+      severity: blocking
+      params:
+        min_rows: 1
+
+    - id: gapminder.silver.input.expected_columns_present
+      type: expected_columns_present
+      name: Source table contains every contracted column
+      severity: blocking
+
+  post_silver:
+    - id: gapminder.silver.output.has_data_rows
+      type: has_data_rows
+      name: Silver table contains rows
+      severity: blocking
+      params:
+        min_rows: 1
+
+    - id: gapminder.silver.output.expected_columns_present
+      type: expected_columns_present
+      name: Silver table matches its published schema
+      severity: blocking
+
+    - id: gapminder.silver.output.files_created
+      type: output_files_created
+      name: Silver artifacts were written
+      severity: blocking
+      params:
+        min_files: 1
+        min_file_bytes: 1
