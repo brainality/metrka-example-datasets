@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+- Added the least-privilege `metrka_operator` role and local
+  `METRKA_OPERATIONS_DSN` configuration for Core governance commands.
+
 ## [1.0.0] - 2026-08-22
 
 First public example release.

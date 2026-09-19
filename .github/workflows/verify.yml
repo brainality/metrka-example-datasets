@@ -79,6 +79,12 @@ jobs:
         port=5432
         user=metrka_etl
         password=metrka_etl_local
+      METRKA_OPERATIONS_DSN: >-
+        dbname=metrka
+        host=127.0.0.1
+        port=5432
+        user=metrka_operator
+        password=metrka_operator_local
       METRKA_WORKSPACES_CONFIG_PATH: ${{ github.workspace }}/workspaces.example.yaml
 
     steps:
