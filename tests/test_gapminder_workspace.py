@@ -79,8 +79,8 @@ def test_example_depends_on_the_verified_core_release_wheel() -> None:
     with (REPOSITORY_ROOT / "pyproject.toml").open("rb") as handle:
         project = tomllib.load(handle)["project"]
 
-    assert project["version"] == "1.0.0"
+    assert project["version"] == "1.1.0"
     assert project["dependencies"] == [
         "metrka-core @ https://github.com/brainality/metrka-core/releases/"
-        "download/v1.0.0/metrka_core-1.0.0-py3-none-any.whl"
+        "download/v1.1.0/metrka_core-1.1.0-py3-none-any.whl"
     ]

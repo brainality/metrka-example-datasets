@@ -87,8 +87,9 @@ python -m metrka_core.metadata.migrations check
 
 ### Option B: use an existing Metrka PostgreSQL database
 
-Keep your existing `METRKA_METADATA_DSN`, `METRKA_MIGRATION_DSN`, or
-`METRKA_METADATA_CONFIG_PATH` configuration and set only the workspace placement:
+Keep your existing `METRKA_METADATA_DSN`, `METRKA_MIGRATION_DSN`,
+`METRKA_OPERATIONS_DSN`, or `METRKA_METADATA_CONFIG_PATH` configuration and set
+only the workspace placement:
 
 ```powershell
 . .\scripts\set-local-env.ps1
